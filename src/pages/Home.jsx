@@ -42,6 +42,24 @@ export default function Home() {
 					</p>
 				</div>
 			</div>
+
+					<div style={{ marginTop: 24 }}>
+						<h3>Open Requests</h3>
+						{requestsCount === 0 ? (
+							<p>No open requests.</p>
+						) : (
+							<div className="grid">
+								{JSON.parse(localStorage.getItem("requests") || "[]").map((r, i) => (
+									<div key={i} className="card">
+										<p><strong>Patient:</strong> {r.name}</p>
+										<p><strong>Blood Group:</strong> {r.bloodGroup}</p>
+										<p><strong>Hospital:</strong> {r.hospital}</p>
+										<p><strong>Contact:</strong> {r.contact}</p>
+									</div>
+								))}
+							</div>
+						)}
+					</div>
 		</div>
 	);
 }
