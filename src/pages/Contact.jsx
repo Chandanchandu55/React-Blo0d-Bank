@@ -4,13 +4,37 @@ export default function Contact() {
   const [name, setName] = useState("");
   const [email, setEmail] = useState("");
   const [message, setMessage] = useState("");
+  const [status, setStatus] = useState(""); // for success/error message
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
-    alert("Message sent successfully!");
-    setName("");
-    setEmail("");
-    setMessage("");
+
+    if (!name || !message) {
+      setStatus("Please fill all required fields!");
+      return;
+    }
+
+    try {
+      const res = await fetch("http://localhost/bloodray-api/send_contact.php", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ name, email, message }),
+      });
+
+      const data = await res.json();
+
+      if (data.success) {
+        setStatus("Message sent successfully!");
+        setName("");
+        setEmail("");
+        setMessage("");
+      } else {
+        setStatus(data.error || "Failed to send message.");
+      }
+    } catch (err) {
+      console.error(err);
+      setStatus("Server error. Please try again later.");
+    }
   };
 
   return (
@@ -25,7 +49,7 @@ export default function Contact() {
         />
         <input
           type="email"
-          placeholder="Your Email"
+          placeholder="Your Email (optional)"
           value={email}
           onChange={(e) => setEmail(e.target.value)}
         />
@@ -36,6 +60,16 @@ export default function Contact() {
         />
         <button type="submit">Send Message</button>
       </form>
+      {status && (
+        <p
+          style={{
+            marginTop: 10,
+            color: status.includes("successfully") ? "green" : "red",
+          }}
+        >
+          {status}
+        </p>
+      )}
     </div>
   );
 }

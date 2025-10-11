@@ -3,11 +3,23 @@ import BloodCard from "../components/BloodCard";
 
 export default function AvailableBlood() {
   const [donors, setDonors] = useState([]);
+  const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    const savedDonors = JSON.parse(localStorage.getItem("donors")) || [];
-    setDonors(savedDonors);
+    // Fetch donors from PHP backend
+    fetch("http://localhost/bloodray-api/get_donors.php")
+      .then((res) => res.json())
+      .then((data) => {
+        setDonors(data);
+        setLoading(false);
+      })
+      .catch((err) => {
+        console.error("Error fetching donors:", err);
+        setLoading(false);
+      });
   }, []);
+
+  if (loading) return <p>Loading donors...</p>;
 
   return (
     <div className="container">

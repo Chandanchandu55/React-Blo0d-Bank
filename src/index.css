@@ -12,6 +12,28 @@ body {
   line-height: 1.6;
 }
 
+/* Reusable button styles for consistent alignment */
+.btn {
+  padding: 8px 12px;
+  border-radius: 6px;
+  border: none;
+  font-weight: 600;
+  cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.btn-danger {
+  background-color: #b71c1c;
+  color: white;
+}
+
+.btn-ghost {
+  background: transparent;
+  color: white;
+}
+
 /* ==== NAVBAR ==== */
 .navbar {
   background-color: #b71c1c;
@@ -31,6 +53,7 @@ body {
   list-style: none;
   display: flex;
   gap: 25px;
+  align-items: center;
 }
 
 .navbar a {
@@ -43,6 +66,31 @@ body {
   text-decoration: underline;
 }
 
+.navbar a {
+  color: white;
+  text-decoration: none;
+  font-weight: 500;
+  display: inline-flex;
+  align-items: center;
+  padding: 0;
+}
+
+/* Ensure buttons inside the navbar align with the links */
+.navbar ul li {
+  display: flex;
+  align-items: center;
+}
+
+.navbar ul li button {
+  background: transparent;
+  border: none;
+  color: white;
+  padding: 0;
+  font-weight: 500;
+  cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+}
 /* ==== CONTAINER ==== */
 .container {
   width: 90%;

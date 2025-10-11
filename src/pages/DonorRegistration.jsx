@@ -1,53 +1,71 @@
 import { useState } from "react";
 
 export default function DonorRegistration() {
+
   const [name, setName] = useState("");
   const [age, setAge] = useState("");
   const [bloodGroup, setBloodGroup] = useState("");
   const [contact, setContact] = useState("");
   const [location, setLocation] = useState("");
+  const [message, setMessage] = useState("");
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
 
     if (!name || !age || !bloodGroup || !contact || !location) {
-      alert("Please fill all fields!");
+      setMessage("Please fill all fields!");
       return;
     }
 
-    const donor = { name, age, bloodGroup, contact, location };
-    const existing = JSON.parse(localStorage.getItem("donors")) || [];
-    existing.push(donor);
-    localStorage.setItem("donors", JSON.stringify(existing));
+    try {
+      const res = await fetch("http://localhost/bloodray-api/register_donor.php", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          full_name: name,
+          age : age,
+          blood_type: bloodGroup,
+          phone: contact,
+          city: location,
+        }),
+      });
 
-    alert("Donor registered successfully!");
+      const data = await res.json();
 
-    // Clear form fields
-    setName("");
-    setAge("");
-    setBloodGroup("");
-    setContact("");
-    setLocation("");
+      if (data.success) {
+        setMessage("Donor registered successfully!");
+        // Clear form fields
+        setName("");
+        setAge("");
+        setBloodGroup("");
+        setContact("");
+        setLocation("");
+      } else {
+        setMessage(data.error || "Failed to register donor.");
+      }
+    } catch (err) {
+      console.error(err);
+      setMessage("Server error. Please try again later.");
+    }
   };
 
   return (
     <div className="container">
       <h2>Donor Registration</h2>
       <form onSubmit={handleSubmit}>
+        
         <input
           type="text"
           placeholder="Full Name"
           value={name}
           onChange={(e) => setName(e.target.value)}
         />
-
         <input
           type="number"
           placeholder="Age"
           value={age}
           onChange={(e) => setAge(e.target.value)}
         />
-
         <select value={bloodGroup} onChange={(e) => setBloodGroup(e.target.value)}>
           <option value="">Select Blood Group</option>
           <option value="A+">A+</option>
@@ -59,14 +77,12 @@ export default function DonorRegistration() {
           <option value="AB+">AB+</option>
           <option value="AB-">AB-</option>
         </select>
-
         <input
           type="text"
           placeholder="Contact Number"
           value={contact}
           onChange={(e) => setContact(e.target.value)}
         />
-
         <input
           type="text"
           placeholder="Location / City"
@@ -76,6 +92,12 @@ export default function DonorRegistration() {
 
         <button type="submit">Register Donor</button>
       </form>
+
+      {message && (
+        <p style={{ marginTop: 10, color: message.includes("successfully") ? "green" : "red" }}>
+          {message}
+        </p>
+      )}
     </div>
   );
 }

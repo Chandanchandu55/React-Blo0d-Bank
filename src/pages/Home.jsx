@@ -2,7 +2,7 @@ import { useContext, useEffect, useState } from "react";
 import { AuthContext } from "../contexts/AuthContext";
 
 export default function Home() {
-	const { user } = useContext(AuthContext);
+	const { user, logout } = useContext(AuthContext);
 	const [donorsCount, setDonorsCount] = useState(0);
 	const [requestsCount, setRequestsCount] = useState(0);
 
@@ -15,7 +15,10 @@ export default function Home() {
 
 	return (
 		<div className="container">
-			<h2>Welcome back{user ? `, ${user.username}` : ""}!</h2>
+			<div style={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
+				<h2 style={{ margin: 0 }}>Welcome back{user ? `, ${user.username}` : ""}!</h2>
+				
+			</div>
 			<p style={{ textAlign: "center", marginBottom: 20 }}>
 				This is the BloodRay dashboard. Use the navigation to register donors,
 				submit requests, and view available blood.
