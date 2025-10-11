@@ -7,7 +7,7 @@ export default function Login() {
   const [error, setError] = useState("");
   const { login, user } = useContext(AuthContext);
 
-  const handleLogin = (e) => {
+  const handleLogin = async (e) => {
     e.preventDefault();
     setError("");
 
@@ -16,17 +16,24 @@ export default function Login() {
       return;
     }
 
-    // Try localStorage users first (demo mode)
-    const users = JSON.parse(localStorage.getItem("users")) || [];
-    if (users.length === 0) {
-      localStorage.setItem("users", JSON.stringify([{ username: "admin", password: "admin" }]));
-    }
+    try {
+      const res = await fetch("http://localhost/bloodray-api/login.php", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ username, password }),
+      });
 
-    const found = users.find((u) => u.username === username && u.password === password);
-    if (found) {
-      login(username);
-    } else {
-      setError("Invalid username or password.");
+      const data = await res.json();
+
+      if (data.success) {
+        // Save user in AuthContext
+        login(data.user); // assuming login expects the user object
+      } else {
+        setError(data.error || "Invalid username or password.");
+      }
+    } catch (err) {
+      console.error(err);
+      setError("Server error. Please try again later.");
     }
   };
 

@@ -2,67 +2,76 @@ import { useContext, useEffect, useState } from "react";
 import { AuthContext } from "../contexts/AuthContext";
 
 export default function Home() {
-	const { user, logout } = useContext(AuthContext);
-	const [donorsCount, setDonorsCount] = useState(0);
-	const [requestsCount, setRequestsCount] = useState(0);
+  const { user } = useContext(AuthContext);
+  const [get_donors, setDonors] = useState([]);
+  const [get_requests, setRequests] = useState([]);
 
-	useEffect(() => {
-		const donors = JSON.parse(localStorage.getItem("donors")) || [];
-		const reqs = JSON.parse(localStorage.getItem("requests")) || [];
-		setDonorsCount(donors.length);
-		setRequestsCount(reqs.length);
-	}, []);
+  useEffect(() => {
+    // Fetch donors
+    fetch("http://localhost/bloodray-api/get_donors.php")
+      .then((res) => res.json())
+      .then((data) => {
+        if (data.success && Array.isArray(data.get_donors)) {
+          setDonors(data.get_donors);
+        }
+      })
+      .catch((err) => console.error("Error fetching donors:", err));
 
-	return (
-		<div className="container">
-			<div style={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
-				<h2 style={{ margin: 0 }}>Welcome back{user ? `, ${user.username}` : ""}!</h2>
-				
-			</div>
-			<p style={{ textAlign: "center", marginBottom: 20 }}>
-				This is the BloodRay dashboard. Use the navigation to register donors,
-				submit requests, and view available blood.
-			</p>
+    // Fetch requests
+    fetch("http://localhost/bloodray-api/get_requests.php")
+      .then((res) => res.json())
+      .then((data) => {
+        if (data.success && Array.isArray(data.get_requests)) {
+          setRequests(data.get_requests);
+        }
+      })
+      .catch((err) => console.error("Error fetching requests:", err));
+  }, []);
 
-			<div className="grid">
-				<div className="card">
-					<h3>Donors</h3>
-					<p style={{ fontSize: 28, fontWeight: 700 }}>{donorsCount}</p>
-					<p>Registered donors</p>
-				</div>
+  return (
+    <div className="container">
+      <h2>Welcome back to Blood Ray...!</h2>
 
-				<div className="card">
-					<h3>Requests</h3>
-					<p style={{ fontSize: 28, fontWeight: 700 }}>{requestsCount}</p>
-					<p>Open blood requests</p>
-				</div>
 
-				<div className="card">
-					<h3>Quick Tip</h3>
-					<p>
-						Keep donor contact and blood group updated. In emergencies, use the
-						Available Blood page to contact donors quickly.
-					</p>
-				</div>
-			</div>
+      <p>This is the BloodRay dashboard. Use the navigation to register donors,
+         submit requests, and view available blood.</p>
 
-					<div style={{ marginTop: 24 }}>
-						<h3>Open Requests</h3>
-						{requestsCount === 0 ? (
-							<p>No open requests.</p>
-						) : (
-							<div className="grid">
-								{JSON.parse(localStorage.getItem("requests") || "[]").map((r, i) => (
-									<div key={i} className="card">
-										<p><strong>Patient:</strong> {r.name}</p>
-										<p><strong>Blood Group:</strong> {r.bloodGroup}</p>
-										<p><strong>Hospital:</strong> {r.hospital}</p>
-										<p><strong>Contact:</strong> {r.contact}</p>
-									</div>
-								))}
-							</div>
-						)}
-					</div>
-		</div>
-	);
+      <div className="grid">
+        <div className="card">
+          <h3>Donors</h3>
+          <p style={{ fontSize: 28, fontWeight: 700 }}>{get_donors.length}</p>
+          <p>Registered donors</p>
+        </div>
+
+        <div className="card">
+          <h3>Requests</h3>
+          <p style={{ fontSize: 28, fontWeight: 700 }}>{get_requests.length}</p>
+          <p>Open blood requests</p>
+        </div>
+
+        <div className="card">
+          <h3>Quick Tip</h3>
+          <p>Keep donor contact and blood group updated for emergencies.Please do not misuse the data.</p>
+        </div>
+      </div>
+
+      <div style={{ marginTop: 24 }}>
+        <h3>Open Requests</h3>
+        {get_requests.length === 0 ? (
+          <p>No open requests.</p>
+        ) : (
+          <div className="grid">
+            {get_requests.map((r, i) => (
+              <div key={i} className="card">
+                <p><strong>Patient:</strong> {r.name}</p>
+                <p><strong>Blood Group:</strong> {r.bloodGroup}</p>
+                <p><strong>Hospital:</strong> {r.hospital}</p>
+                <p><strong>Contact:</strong> {r.contact}</p>
+              </div>
+            ))}
+          </div>
+        )}
+      </div>
+    </div>
+  );
 }
